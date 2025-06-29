@@ -29,10 +29,8 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Create SSE stream
   const stream = new ReadableStream({
     start(controller) {
-      // Send initial game state
       const players = Array.from(game.players.values()).map(p => ({
         id: p.id,
         name: p.name || 'Anonymous',
@@ -57,10 +55,8 @@ export async function GET(request: NextRequest) {
 
       controller.enqueue(`data: ${JSON.stringify(initialData)}\n\n`)
 
-      // Add connection to the game's SSE connections
       addSSEConnection(code, controller, userId)
 
-      // Send heartbeat every 30 seconds
       const heartbeatInterval = setInterval(() => {
         try {
           controller.enqueue(`data: ${JSON.stringify({
@@ -72,7 +68,6 @@ export async function GET(request: NextRequest) {
         }
       }, 30000)
 
-      // Cleanup on close
       request.signal.addEventListener('abort', () => {
         clearInterval(heartbeatInterval)
         removeSSEConnection(code, controller, userId)

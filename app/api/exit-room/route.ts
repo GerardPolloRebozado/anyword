@@ -15,19 +15,17 @@ export async function POST(request: NextRequest) {
 
     const game = games.get(code)
     if (!game) {
-      return NextResponse.json({ success: true }) // Game doesn't exist, consider it a success
+      return NextResponse.json({ success: true })
     }
 
     const player = game.players.get(userId)
     if (!player) {
-      return NextResponse.json({ success: true }) // Player not in game, consider it a success
+      return NextResponse.json({ success: true })
     }
 
-    // Remove player from game
     game.players.delete(userId)
     game.lastActivity = new Date()
 
-    // If no players left, delete the game
     if (game.players.size === 0) {
       games.delete(code)
       return NextResponse.json({ success: true })
@@ -39,7 +37,6 @@ export async function POST(request: NextRequest) {
       isReady: p.isReady
     }))
 
-    // Broadcast player left
     broadcastToGame(code, {
       type: 'player_left',
       gameCode: code,

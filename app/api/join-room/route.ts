@@ -28,14 +28,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if player is already in the game
     if (!game.players.has(userId)) {
-      if (game.players.size >= 8) { // Maximum 8 players
-        return NextResponse.json(
-          { error: 'Game is full' },
-          { status: 400 }
-        )
-      }
 
       const player: Player = {
         id: userId,
@@ -47,8 +40,7 @@ export async function POST(request: NextRequest) {
       game.players.set(userId, player)
       game.lastActivity = new Date()
 
-      // Broadcast player joined
-      broadcastToGame(code, {
+      broadcastToGame(csode, {
         type: 'player_joined',
         gameCode: code,
         data: {

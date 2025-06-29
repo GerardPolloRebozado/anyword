@@ -45,7 +45,6 @@ export async function GET(request: NextRequest) {
       canStart: players.length >= 3 && players.every(p => p.isReady)
     }
 
-    // If game is playing, include word/impostor info
     if (game.state === 'playing') {
       return NextResponse.json({
         ...gameState,

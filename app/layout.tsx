@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Word Game",
+  title: "Anyword",
   description: "A fun multiplayer word guessing game where one player is the impostor!",
 };
 

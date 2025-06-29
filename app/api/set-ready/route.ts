@@ -31,16 +31,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Handle new round request
     if (newRound && game.state === 'playing') {
+      console.log(`Game ${code}: Starting new round, resetting impostor from ${game.impostor}`)
       game.state = 'waiting'
       game.word = undefined
       game.impostor = undefined
-      // Reset all players to not ready
       game.players.forEach(p => {
         p.isReady = false
       })
-      player.isReady = true // Mark the requesting player as ready
+      player.isReady = true
       game.lastActivity = new Date()
 
       const players = Array.from(game.players.values()).map(p => ({
@@ -49,13 +48,12 @@ export async function POST(request: NextRequest) {
         isReady: p.isReady
       }))
 
-      // Broadcast new round started
       broadcastToGame(code, {
         type: 'player_joined',
         gameCode: code,
         data: {
           players,
-          readyCount: 1, // Only the requesting player is ready
+          readyCount: 1,
           totalPlayers: players.length,
           canStart: false,
           gameState: 'waiting'
@@ -77,7 +75,6 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Allow ready toggle only in waiting state
     if (game.state === 'starting') {
       return NextResponse.json(
         { error: 'Game is starting, please wait' },
@@ -92,7 +89,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Normal ready toggle
     player.isReady = !player.isReady
     game.lastActivity = new Date()
 
@@ -105,7 +101,6 @@ export async function POST(request: NextRequest) {
     const readyCount = players.filter(p => p.isReady).length
     const canStart = players.length >= 3 && players.every(p => p.isReady)
 
-    // Broadcast player state change
     broadcastToGame(code, {
       type: 'player_joined',
       gameCode: code,
@@ -119,11 +114,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
 
-    // If all players are ready and minimum players met, start the game
     if (canStart) {
       game.state = 'starting'
 
-      // Broadcast game starting
       broadcastToGame(code, {
         type: 'game_started',
         gameCode: code,
@@ -134,9 +127,7 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString()
       })
 
-      // Select random word and impostor after a delay
       setTimeout(async () => {
-        // Check if game still exists
         const currentGame = games.get(code)
         if (!currentGame || currentGame.state !== 'starting') {
           return
@@ -154,21 +145,27 @@ export async function POST(request: NextRequest) {
 
           currentGame.word = res.response.trim().toLowerCase()
           const playerIds = Array.from(currentGame.players.keys())
-          currentGame.impostor = playerIds[Math.floor(Math.random() * playerIds.length)]
+
+          for (let i = playerIds.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [playerIds[i], playerIds[j]] = [playerIds[j], playerIds[i]];
+          }
+
+          currentGame.impostor = playerIds[0]
           currentGame.state = 'playing'
+
+          console.log(`Game ${code}: Selected impostor ${currentGame.impostor} from players [${playerIds.join(', ')}]`)
 
           broadcastToGame(code, {
             type: 'word_revealed',
             gameCode: code,
             data: {
               gameState: 'playing'
-              // Note: word and impostor info is sent per player in the SSE initial state
             },
             timestamp: new Date().toISOString()
           })
         } catch (error) {
           console.error('Error generating word or setting game state:', error)
-          // Reset game state to allow retry
           if (currentGame) {
             currentGame.state = 'waiting'
           }

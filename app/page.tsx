@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Users, GamepadIcon, User, Edit3, AlertCircle } from 'lucide-react'
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 
-export default function ImprovedHome() {
+export default function Home() {
   const router = useRouter()
   const [joinCode, setJoinCode] = useState('')
   const [playerName, setPlayerName] = useState('')
@@ -141,7 +141,7 @@ export default function ImprovedHome() {
             <div className="flex items-center justify-center mb-4">
               <GamepadIcon className="h-12 w-12 text-primary mr-3" />
               <h1 className="text-4xl font-bold">
-                Word intruder
+                Anyword
               </h1>
             </div>
             <p className="text-lg text-muted-foreground">
