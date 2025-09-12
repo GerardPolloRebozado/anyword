@@ -139,14 +139,25 @@ export async function POST(request: NextRequest) {
                     const raeWordRes = await fetch(
                         "https://rae-api.com/api/random"
                     );
-                    const raeWord = await raeWordRes.json();
+                    let raeWord = await raeWordRes.json();
+                    if (raeWord.data.word) {
+                        raeWord = raeWord.data.word;
+                    } else {
+                        throw new Error("Error cogiendo palabra de la rae");
+                    }
+                    console.log(raeWord);
 
                     const res = await ollama.generate({
                         model: "gemma3:4b",
-                        prompt: `Eres un generador de palabras simples y cotidianas para un juego de mesa. Genera una sola palabra concreta, fácil de entender y muy común. Evita palabras raras, técnicas, abstractas o que suenen extrañas. Tu respuesta debe ser solo la palabra, sin comillas ni explicación. Game ID: ${uuidv4()}. Aquí tienes una palabra aleatoria de la RAE, si crees que es fácil úsala, sino usa un sinónimo: ${
-                            raeWord.data?.word || "mesa"
-                        }`,
-                        options: { temperature: 1.2 },
+                        prompt: `
+Eres un generador de palabras simples y cotidianas para un juego de mesa.
+Tu tarea es devolver **una sola palabra diferente cada vez**, muy común y fácil de entender.
+No uses tecnicismos ni palabras extrañas.
+Si la palabra sugerida de la RAE es rara, cámbiala por un sinónimo cotidiano.
+Responde solo con la palabra, en minúsculas, sin comillas ni explicaciones.
+Palabra sugerida: ${raeWord}.
+    `,
+                        options: { temperature: 1.0, top_p: 0.85 },
                     });
 
                     currentGame.word = res.response.trim().toLowerCase();
