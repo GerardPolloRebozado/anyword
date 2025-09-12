@@ -20,7 +20,7 @@ export default function Home() {
   const [playerName, setPlayerName] = useState('')
 
   useEffect(() => {
-    setPlayerName(localStorage.getItem('userId') || "unknown")
+    setPlayerName(localStorage.getItem('playerName') || "unknown")
   }, [])
 
   const handleCreateRoom = async () => {
