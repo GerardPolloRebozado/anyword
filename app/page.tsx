@@ -1,57 +1,29 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert } from '@/components/ui/alert'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Users, GamepadIcon, User, Edit3, AlertCircle } from 'lucide-react'
-import {Avatar, AvatarFallback} from "@/components/ui/avatar";
+import { Plus, Users, GamepadIcon, User, AlertCircle } from 'lucide-react'
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Home() {
   const router = useRouter()
   const [joinCode, setJoinCode] = useState('')
-  const [playerName, setPlayerName] = useState('')
-  const [showNameDialog, setShowNameDialog] = useState(false)
-  const [tempName, setTempName] = useState('')
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [playerName, setPlayerName] = useState('')
 
   useEffect(() => {
-    const savedName = localStorage.getItem('playerName')
-    if (savedName) {
-      setPlayerName(savedName)
-    } else {
-      setShowNameDialog(true)
-    }
+    setPlayerName(localStorage.getItem('userId') || "unknown")
   }, [])
 
-  const handleSaveName = () => {
-    if (tempName.trim()) {
-      localStorage.setItem('playerName', tempName.trim())
-      setPlayerName(tempName.trim())
-      setShowNameDialog(false)
-      setError('')
-    } else {
-      setError('Por favor, ingresa un nombre válido')
-    }
-  }
-
-  const handleChangeName = () => {
-    setTempName(playerName)
-    setShowNameDialog(true)
-    setError('')
-  }
-
   const handleCreateRoom = async () => {
-    if (!playerName.trim()) {
-      setShowNameDialog(true)
-      return
-    }
 
     let userId = localStorage.getItem('userId')
     if (!userId) {
@@ -68,7 +40,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId,
-          playerName: playerName.trim()
+          playerName,
         })
       })
 
@@ -88,11 +60,6 @@ export default function Home() {
   }
 
   const handleJoinRoom = async () => {
-    if (!playerName.trim()) {
-      setShowNameDialog(true)
-      return
-    }
-
     if (!joinCode.trim()) {
       setError('Por favor, ingresa un código de sala')
       return
@@ -114,7 +81,7 @@ export default function Home() {
         body: JSON.stringify({
           code: joinCode.trim().toUpperCase(),
           userId,
-          playerName: playerName.trim()
+          playerName: playerName
         })
       })
 
@@ -164,15 +131,6 @@ export default function Home() {
                     </Badge>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleChangeName}
-                  className="flex items-center gap-1"
-                >
-                  <Edit3 className="h-4 w-4" />
-                  Cambiar
-                </Button>
               </CardContent>
             </Card>
           )}
@@ -294,43 +252,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Name Dialog */}
-      <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              {playerName ? 'Cambiar Nombre' : 'Ingresa tu Nombre'}
-            </DialogTitle>
-            <DialogDescription>
-              {playerName
-                ? 'Puedes cambiar tu nombre de jugador aquí.'
-                : 'Necesitas un nombre para jugar. ¿Cómo te gustaría que te llamen?'
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Tu nombre de jugador"
-              value={tempName}
-              onChange={(e) => {
-                setTempName(e.target.value)
-                setError('')
-              }}
-              maxLength={20}
-              className="text-center"
-            />
-            {error && (
-              <p className="text-sm text-red-600 text-center">{error}</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={handleSaveName} disabled={!tempName.trim()}>
-              {playerName ? 'Actualizar' : 'Guardar'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
     </div>
   )
 }

@@ -19,7 +19,6 @@ function PlayContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const { gameState, isConnected, error } = useGameSSE(code, userId)
 
   useEffect(() => {
     const userIdFromStorage = localStorage.getItem('userId') || ''
@@ -31,7 +30,17 @@ function PlayContent() {
     if (codeFromQuery) {
       setCode(codeFromQuery)
     }
-  }, [searchParams])
+    (async function () {
+      await fetch("/api/join-room", {
+        method: "POST",
+        body: JSON.stringify({
+          userId: userIdFromStorage, playerName: playerNameFromStorage, code: codeFromQuery
+        })
+      })
+    })()
+  }, [code, playerName, searchParams, userId])
+
+  const { gameState, isConnected, error } = useGameSSE(code, userId)
 
   const handleReady = async () => {
     if (!code || !userId) return
@@ -105,8 +114,8 @@ function PlayContent() {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <p className="text-xl text-red-500">Error de conexión: {error}</p>
-        <Button onClick={() => router.push('/')} className="mt-4">
-          Volver al inicio
+        <Button onClick={() => router.refresh()} className="mt-4">
+          Rercargar
         </Button>
       </div>
     )

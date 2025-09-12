@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       game.players.set(userId, player)
       game.lastActivity = new Date()
 
-      broadcastToGame(csode, {
+      broadcastToGame(code, {
         type: 'player_joined',
         gameCode: code,
         data: {
