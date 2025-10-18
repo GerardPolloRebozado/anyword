@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { code, userId } = body
 
+      console.log(body)
+
     if (!code || !userId) {
       return NextResponse.json(
         { error: 'Game code and user ID are required' },
@@ -15,11 +17,13 @@ export async function POST(request: NextRequest) {
 
     const game = games.get(code)
     if (!game) {
+        console.log("game not found")
       return NextResponse.json({ success: true })
     }
 
     const player = game.players.get(userId)
     if (!player) {
+        console.log("player not found")
       return NextResponse.json({ success: true })
     }
 
@@ -27,6 +31,7 @@ export async function POST(request: NextRequest) {
     game.lastActivity = new Date()
 
     if (game.players.size === 0) {
+        console.log("deleting game")
       games.delete(code)
       return NextResponse.json({ success: true })
     }
@@ -37,6 +42,7 @@ export async function POST(request: NextRequest) {
       isReady: p.isReady
     }))
 
+      console.log("broadcasting")
     broadcastToGame(code, {
       type: 'player_left',
       gameCode: code,
@@ -49,6 +55,7 @@ export async function POST(request: NextRequest) {
       },
       timestamp: new Date().toISOString()
     })
+      console.log("broadcasted")
 
     return NextResponse.json({ success: true })
   } catch (error) {

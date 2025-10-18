@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { games, broadcastToGame } from "@/lib/game-store";
 import ollama from "ollama";
-import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
     try {

@@ -165,6 +165,7 @@ function PlayContent() {
           userId={userId}
           readyCount={gameState.readyCount}
           totalPlayers={gameState.totalPlayers}
+          gameCode={code}
         />
 
         <GameStateCard

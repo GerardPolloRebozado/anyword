@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Users, Crown, Clock, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react'
+import {Users, Crown, Clock, CheckCircle, XCircle, Eye, EyeOff, LogOut} from 'lucide-react'
 
 interface Player {
   id: string
@@ -20,11 +20,21 @@ interface PlayersCardProps {
   userId: string
   readyCount: number
   totalPlayers: number
+    gameCode: string
 }
 
-export function PlayersCard({ players, userId, readyCount, totalPlayers }: PlayersCardProps) {
+export function PlayersCard({ players, userId, readyCount, totalPlayers, gameCode }: PlayersCardProps) {
   const readyPercentage = totalPlayers > 0 ? (readyCount / totalPlayers) * 100 : 0
 
+    async function kickPlayer(id: string) {
+      await fetch(`/api/exit-room`, {
+          method: "POST",
+          body: JSON.stringify({
+              code: gameCode,
+              userId: id,
+          })
+      })
+    }
   return (
     <Card>
       <CardHeader>
@@ -83,6 +93,11 @@ export function PlayersCard({ players, userId, readyCount, totalPlayers }: Playe
                 )}
                 {player.isReady ? 'Listo' : 'Esperando'}
               </Badge>
+                {userId != player.id && (
+                <Button onClick={() => kickPlayer(player.id)}>
+                    <LogOut/>
+                </Button>
+                )}
             </div>
           ))}
         </div>
