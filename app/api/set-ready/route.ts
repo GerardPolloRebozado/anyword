@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { games, broadcastToGame } from "@/lib/game-store";
-import ollama from "ollama";
+import {Ollama} from "ollama";
 
 export async function POST(request: NextRequest) {
     try {
@@ -146,7 +146,12 @@ export async function POST(request: NextRequest) {
                     }
                     console.log(raeWord);
 
+                    const ollama = new Ollama({
+                        host: process.env.OLLAMA_API,
+                    })
+
                     const res = await ollama.generate({
+
                         model: "gemma3:4b",
                         prompt: `
 Eres un generador de palabras simples y cotidianas para un juego de mesa.

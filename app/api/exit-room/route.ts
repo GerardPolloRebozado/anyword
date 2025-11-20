@@ -6,8 +6,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { code, userId } = body
 
-      console.log(body)
-
     if (!code || !userId) {
       return NextResponse.json(
         { error: 'Game code and user ID are required' },

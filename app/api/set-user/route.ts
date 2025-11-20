@@ -13,8 +13,9 @@ export async function POST(req: Request) {
 
     const userId = uuidv4();
 
-    cookies().set('userId', userId, { path: '/', httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    cookies().set('playerName', playerName, { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+    const cookieStore = await cookies()
+      cookieStore.set('userId', userId, { path: '/', httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+      cookieStore.set('playerName', playerName, { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
 
     return NextResponse.json({ success: true, userId, playerName });
   } catch (error) {

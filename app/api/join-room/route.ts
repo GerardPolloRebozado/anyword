@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { code, playerName } = body
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const userId = cookieStore.get('userId')?.value
 
     if (!code || !userId) {
