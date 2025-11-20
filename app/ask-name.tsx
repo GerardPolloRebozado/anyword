@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { User } from "lucide-react"
 import { useState, useEffect } from "react"
-import { v4 as uuidv4 } from 'uuid'
 
 import { usePathname } from 'next/navigation'
 
@@ -45,7 +44,7 @@ export default function AskName() {
         } else {
           setError('Error al guardar el nombre');
         }
-      } catch (error) {
+      } catch {
         setError('Error de conexión');
       }
     } else {
