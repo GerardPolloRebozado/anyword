@@ -20,26 +20,17 @@ export default function Home() {
   const [playerName, setPlayerName] = useState('')
 
   useEffect(() => {
-    setPlayerName(localStorage.getItem('playerName') || "unknown")
+    const nameFromCookie = document.cookie.split('; ').find(row => row.startsWith('playerName='))?.split('=')[1];
+    setPlayerName(nameFromCookie || "unknown")
   }, [])
 
   const handleCreateRoom = async () => {
-
-    let userId = localStorage.getItem('userId')
-    if (!userId) {
-      userId = uuidv4()
-      localStorage.setItem('userId', userId)
-    }
-
-    setIsLoading(true)
-    setError('')
 
     try {
       const response = await fetch('/api/create-room', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId,
           playerName,
         })
       })
@@ -65,22 +56,12 @@ export default function Home() {
       return
     }
 
-    let userId = localStorage.getItem('userId')
-    if (!userId) {
-      userId = uuidv4()
-      localStorage.setItem('userId', userId)
-    }
-
-    setIsLoading(true)
-    setError('')
-
     try {
       const response = await fetch('/api/join-room', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           code: joinCode.trim().toUpperCase(),
-          userId,
           playerName: playerName
         })
       })

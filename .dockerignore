@@ -1,0 +1,29 @@
+
+# Docker specific ignores
+Dockerfile
+.dockerignore
+.git
+.gitignore
+README.md
+
+# Node.js
+node_modules
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Next.js
+.next
+out
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

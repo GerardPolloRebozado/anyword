@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { games, broadcastToGame, type Player } from '@/lib/game-store'
 
+import { cookies } from 'next/headers'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { code, userId, playerName } = body
+    const { code, playerName } = body
+    const cookieStore = cookies()
+    const userId = cookieStore.get('userId')?.value
 
     if (!code || !userId) {
       return NextResponse.json(
-        { error: 'Game code and user ID are required' },
+        { error: 'Game code and user authentication are required' },
         { status: 400 }
       )
     }

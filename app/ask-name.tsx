@@ -7,36 +7,49 @@ import { User } from "lucide-react"
 import { useState, useEffect } from "react"
 import { v4 as uuidv4 } from 'uuid'
 
+import { usePathname } from 'next/navigation'
+
 export default function AskName() {
   const [showNameDialog, setShowNameDialog] = useState(false)
   const [tempName, setTempName] = useState('')
   const [playerName, setPlayerName] = useState('')
   const [error, setError] = useState('')
+  const pathname = usePathname()
 
   useEffect(() => {
-    const savedName = localStorage.getItem('playerName')
+    if (pathname === '/register') {
+      return
+    }
+    const savedName = document.cookie.split('; ').find(row => row.startsWith('playerName='))
     if (savedName) {
-      setPlayerName(savedName)
+      setPlayerName(savedName.split('=')[1])
     } else {
       setShowNameDialog(true)
     }
+  }, [pathname])
 
-    let userId = localStorage.getItem('userId')
-    if (!userId) {
-      userId = uuidv4()
-      localStorage.setItem('userId', userId)
-    }
-  }, [])
-
-  const handleSaveName = () => {
+  const handleSaveName = async () => {
     if (tempName.trim()) {
-      localStorage.setItem('playerName', tempName.trim())
-      setPlayerName(tempName.trim())
-      setShowNameDialog(false)
-      setError('')
-      window.location.reload()
+      try {
+        const response = await fetch('/api/set-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerName: tempName.trim() }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setPlayerName(data.playerName);
+          setShowNameDialog(false);
+          setError('');
+          window.location.reload();
+        } else {
+          setError('Error al guardar el nombre');
+        }
+      } catch (error) {
+        setError('Error de conexión');
+      }
     } else {
-      setError('Por favor, ingresa un nombre válido')
+      setError('Por favor, ingresa un nombre válido');
     }
   }
   return (
