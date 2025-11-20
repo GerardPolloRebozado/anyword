@@ -1,22 +1,18 @@
-# Dockerfile for a Next.js application with pnpm
-
 # 1. Dependencies stage
-FROM node:20-alpine AS deps
+FROM node:lts-alpine AS deps
 WORKDIR /app
-RUN npm install -g pnpm
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm install --frozen-lockfile
 
 # 2. Builder stage
-FROM node:20-alpine AS builder
+FROM node:lts-alpin AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm install -g pnpm
-RUN pnpm build
+RUN npm run build
 
 # 3. Runner stage
-FROM node:20-alpine AS runner
+FROM node:lts-alpin AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -33,4 +29,4 @@ EXPOSE 3000
 ENV PORT 3000
 
 # The command to start the app
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]
