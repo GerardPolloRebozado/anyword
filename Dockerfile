@@ -5,14 +5,14 @@ COPY package.json package-lock.json ./
 RUN npm install --frozen-lockfile
 
 # 2. Builder stage
-FROM node:lts-alpin AS builder
+FROM node:lts-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
 # 3. Runner stage
-FROM node:lts-alpin AS runner
+FROM node:lts-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
